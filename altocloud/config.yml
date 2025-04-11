@@ -1,0 +1,54 @@
+version: "1.0"
+
+project:
+  name: "my-aws-tool"
+  description: "Custom AWS infra management"
+  region: "us-east-1"
+  profile: "default"
+
+environments:
+  dev:
+    region: "us-east-1"
+    resources:
+      ec2_instances:
+        - name: "dev-app-server"
+          instance_type: "t3.micro"
+          ami_id: "ami-0abcdef1234567890"
+          key_name: "my-key"
+          security_groups: ["sg-12345678"]
+          tags:
+            Environment: "dev"
+            Owner: "nitin"
+      s3_buckets:
+        - name: "dev-my-app-bucket"
+          versioning: true
+          encryption: "AES256"
+  prod:
+    region: "us-west-2"
+    resources:
+      ec2_instances:
+        - name: "prod-app-server"
+          instance_type: "t3.medium"
+          ami_id: "ami-0fedcba9876543210"
+          key_name: "my-prod-key"
+          security_groups: ["sg-87654321"]
+          tags:
+            Environment: "prod"
+            Owner: "nitin"
+      s3_buckets:
+        - name: "prod-my-app-bucket"
+          versioning: true
+          encryption: "AES256"
+
+tasks:
+  - name: "start-ec2"
+    type: "ec2"
+    action: "start"
+    environment: "dev"
+    filters:
+      tag: "Environment=dev"
+  - name: "create-s3"
+    type: "s3"
+    action: "create"
+    environment: "prod"
+    target: "prod-my-app-bucket"
